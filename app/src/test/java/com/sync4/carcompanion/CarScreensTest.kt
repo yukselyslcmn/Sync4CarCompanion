@@ -261,7 +261,7 @@ class CarScreensTest {
     }
 
     @Test
-    fun bookmarksScreen_click_requestsUrlAndLaunchesPhoneAppAndPops() {
+    fun bookmarksScreen_click_requestsUrlAndLaunchesPhoneAppAndOpensVideoMirrorScreen() {
         val sm = carContext.getCarService(ScreenManager::class.java) as TestScreenManager
         sm.push(CompanionMainScreen(carContext))
         val bookmarksScreen = CompanionBookmarksScreen(carContext)
@@ -278,7 +278,21 @@ class CarScreensTest {
         val started = shadowOf(app).nextStartedActivity
         assertNotNull(started)
         assertEquals(MainActivity::class.java.name, started.component!!.className)
-        assertTrue(sm.top is CompanionMainScreen)
+        assertTrue(sm.top is com.sync4.carcompanion.car.CompanionVideoMirrorScreen)
+    }
+
+    @Test
+    fun videoMirrorScreen_providesNavigationTemplateWithPlayPauseBookmarksAndPanelActions() {
+        val videoScreen = com.sync4.carcompanion.car.CompanionVideoMirrorScreen(carContext)
+        val c = newCtrl(videoScreen)
+        c.moveToState(Lifecycle.State.RESUMED)
+
+        val template = videoScreen.onGetTemplate() as androidx.car.app.navigation.model.NavigationTemplate
+        val actions = template.actionStrip!!.actions
+        assertEquals(3, actions.size)
+        assertEquals("Oynat / Duraklat", actions[0].title.toString())
+        assertEquals("Web Kısayolları", actions[1].title.toString())
+        assertEquals("Kontrol Paneli", actions[2].title.toString())
     }
 
     // ---------- Eski API seviyesi (< 7) başlık yolu ----------

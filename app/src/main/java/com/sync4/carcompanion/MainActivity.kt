@@ -187,9 +187,11 @@ private fun CompanionAppRoot(
         mutableStateOf<WebChromeClient.CustomViewCallback?>(null)
     }
 
-    // Ekran yansıtma veya tam ekran video aktifken telefon ekranının zaman aşımıyla kapanmasını önle
+    // Ekran yansıtma, araç bağlantısı veya tam ekran video aktifken telefon ekranının zaman aşımıyla kapanmasını önle
     val hostView = LocalView.current
-    val shouldKeepScreenOn = mirrorStatus is MirrorStatus.Active ||
+    val shouldKeepScreenOn = isCarConnected ||
+        activeTab == CompanionTab.BROWSER ||
+        mirrorStatus is MirrorStatus.Active ||
         mirrorStatus is MirrorStatus.Starting ||
         fullscreenCustomView != null
     DisposableEffect(hostView, shouldKeepScreenOn) {
@@ -233,14 +235,19 @@ private fun CompanionAppRoot(
 
     // Yaşam döngüsü takibi: Bildirim izni durumunu ve WebView durumunu güncel tut
     DisposableEffect(lifecycleOwner, webView) {
+        com.sync4.carcompanion.mirror.CarSurfaceRenderer.attachPhoneViews(webView)
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> {
                     hasNotificationPermission = checkNotificationPermission(context)
                     webView.onResume()
+                    com.sync4.carcompanion.mirror.CarSurfaceRenderer.attachPhoneViews(webView)
                 }
                 Lifecycle.Event.ON_PAUSE -> {
-                    webView.onPause()
+                    // Araç ekranı bağlıyken WebView arka planda dursa bile video akışı kesilmesin
+                    if (!CompanionStateRepository.isCarConnected.value) {
+                        webView.onPause()
+                    }
                 }
                 else -> Unit
             }
@@ -248,6 +255,7 @@ private fun CompanionAppRoot(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            com.sync4.carcompanion.mirror.CarSurfaceRenderer.detachPhoneViews(webView)
             webView.stopLoading()
             webView.destroy()
         }
@@ -1079,6 +1087,27 @@ private fun createConfiguredWebView(
                         progress = 100,
                         canGoBack = view?.canGoBack() == true,
                         canGoForward = view?.canGoForward() == true
+                    )
+                }
+                if (url?.contains("youtube.com/watch") == true) {
+                    view?.evaluateJavascript(
+                        """
+                        (function() {
+                            var tryPlay = function(attempts) {
+                                var v = document.querySelector('video');
+                                if (v && v.paused) {
+                                    v.play().catch(function(){});
+                                }
+                                var btn = document.querySelector('.ytp-large-play-button, button[aria-label*="Oynat"], button[aria-label*="Play"]');
+                                if (btn) { btn.click(); }
+                                if (attempts > 0) {
+                                    setTimeout(function() { tryPlay(attempts - 1); }, 1000);
+                                }
+                            };
+                            setTimeout(function() { tryPlay(4); }, 800);
+                        })();
+                        """.trimIndent(),
+                        null
                     )
                 }
             }

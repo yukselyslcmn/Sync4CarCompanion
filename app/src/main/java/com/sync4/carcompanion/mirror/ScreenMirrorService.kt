@@ -155,8 +155,10 @@ class ScreenMirrorService : Service() {
             reader.setOnImageAvailableListener({ availableReader ->
                 if (isStopping.get()) return@setOnImageAvailableListener
                 try {
-                    availableReader.acquireLatestImage()?.use { _ ->
+                    availableReader.acquireLatestImage()?.use { image ->
                         val currentCount = frameCounter.incrementAndGet()
+                        // Yakalanan sanal ekran karesini doğrudan araç ekranındaki Surface yüzeyine çiz
+                        CarSurfaceRenderer.onMediaProjectionImage(image)
                         // Arayüz yeniden çizim yükünü düşük tutmak için her 15 karede (~0.5 sn) sayaç güncelle
                         if (currentCount == 1L || currentCount % 15L == 0L) {
                             CompanionStateRepository.updateCapturedFrames(currentCount)

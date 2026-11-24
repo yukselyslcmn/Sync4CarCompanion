@@ -138,6 +138,11 @@ object CompanionStateRepository {
             url = "https://m.youtube.com"
         ),
         QuickBookmark(
+            title = "YouTube Video Test (Big Buck Bunny)",
+            subtitle = "Doğrudan HTML5 HD video oynat",
+            url = "https://m.youtube.com/watch?v=aqz-KE-bpKQ"
+        ),
+        QuickBookmark(
             title = "TRT tabii / Canlı",
             subtitle = "Canlı TV ve yayın akışı",
             url = "https://www.tabii.com"

@@ -37,10 +37,16 @@ class CompanionBookmarksScreen(carContext: CarContext) : Screen(carContext) {
                             carContext.startActivity(phoneIntent)
                             CarToast.makeText(
                                 carContext,
-                                "${bookmark.title} telefonda açılıyor...",
+                                "${bookmark.title} araç ekranında ve telefonda açılıyor...",
                                 CarToast.LENGTH_SHORT
                             ).show()
-                            screenManager.pop()
+                            val currentTop = screenManager.top
+                            if (currentTop !is CompanionVideoMirrorScreen) {
+                                screenManager.pop()
+                                if (screenManager.top !is CompanionVideoMirrorScreen) {
+                                    screenManager.push(CompanionVideoMirrorScreen(carContext))
+                                }
+                            }
                         }
                     )
                     .build()

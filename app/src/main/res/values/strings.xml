@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Araç Companion</string>
-    <string name="car_app_name">Araç Yardımcı</string>
+    <string name="car_app_name">Araç Companion</string>
     <string name="mirror_channel_name">Ekran Yansıtma Oturumu</string>
     <string name="mirror_channel_desc">Fiat Egea Uconnect ve Ford SYNC 4 için ekran yakalama durum bildirimi</string>
     <string name="mirror_notif_title">%1$s • Yansıtma Aktif</string>
