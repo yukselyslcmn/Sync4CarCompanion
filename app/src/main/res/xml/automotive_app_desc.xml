@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<automotiveApp>
+    <!-- Fiat Egea (Uconnect 7") ve Ford Focus (SYNC 4) Android Auto şablon tabanlı uygulama bildirimi -->
+    <uses name="template" />
+</automotiveApp>
